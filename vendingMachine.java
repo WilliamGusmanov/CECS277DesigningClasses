@@ -128,9 +128,15 @@ public class vendingMachine {
 		}
 		else return null; 
 	}
+	
+	/**
+	 * helper method to decrement item when the item is bought
+	 * @param item item to be bought
+	 */
 	private void DecrementItem(Item item) {
-		
+		if (item.getNumberOfItem() > 0) {
 		item.setNumberOfItem(item.getNumberOfItem()-1);
+		}
 	}
 	/**
 	 * adds a brand new item to the Vending Machine
@@ -195,5 +201,14 @@ public class vendingMachine {
 	}
 	//everything the customer can do, but can add and remove items freely and add brand new items
 	public void adminAccess() {	
+	}
+	
+	/**
+	 * function to display items utilizing the toString Method
+	 */
+	public void displayItems() {
+		for (Item item:vendingMachineitems) {
+			System.out.println(item);
+		}
 	}
 }
