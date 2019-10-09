@@ -87,11 +87,15 @@ public class vendingMachine {
 	 * take all the coins of the specific coin type out of the vending machine
 	 * @param coin
 	 */
-	public void removeCoins() {
-		for (String coin : CustomerCoins.keySet()) {
-			 CustomerCoins.put(coin, 0);
+
+	public void removeCoins(String coin) {
+		if (ValueCoins.containsKey(coin)) {
+			VendingMachineCoins.put(coin, 0);
+		} else {
+			System.out.println("invalid coin");
 		}
 	}
+
 	/**
 	 * for each type of coin: balance += (number of coin type * value of coin)
 	 * @return
