@@ -2,6 +2,11 @@ package designingclasses;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.HashMap;; 
+/**
+ * 
+ * @author William Gusmanov, @author Bryan Vu 
+ * Program that simulates Vending Machine 
+ */
 public class vendingMachine {
 	/**
 	 * ArrayList of items to be sold in Vending machine 
@@ -13,7 +18,6 @@ public class vendingMachine {
 	public HashMap<String, Integer> CustomerCoins = new HashMap<String, Integer>(); 
 	private int maxCapacityOfItems; 
 	ArrayList<Item> vendingMachineitems = new ArrayList<Item>();
-	private Item currentlyChosenItem; 
 	Scanner buttonPanel = new Scanner(System.in);
 	/**
 	 * default constructor
@@ -21,17 +25,19 @@ public class vendingMachine {
 	vendingMachine(){
 		initializeMaps(); 	
 	}
-	
+	vendingMachine(ArrayList<Item> x){
+		initializeMaps();
+		vendingMachineitems = x; //set reference of vendingMachineitems to Array List parameter 
+	}
 	/**
 	 * prompts user to select item from machine.
 	 * This will be an overloaded method 
 	 * @return item that user selected, else return null 
 	 */
-	
 	private void initializeMaps() {
 		ValueCoins.put("penny", 0.01);
 		ValueCoins.put("nickel", 0.05);
-		ValueCoins.put("dime", 0.1);
+		ValueCoins.put("dime", 0.10);
 		ValueCoins.put("quarter", 0.25);
 		ValueCoins.put("half_dollar", 0.5);
 		ValueCoins.put("dollar", 1.0);
@@ -49,7 +55,7 @@ public class vendingMachine {
 		CustomerCoins.put("quarter", 0);
 		CustomerCoins.put("half_dollar", 0);
 		CustomerCoins.put("dollar", 0);
-	}
+		}
 	/**
 	 * user gets to add a coin to the vending machine
 	 * spendable balance is incremented
@@ -57,9 +63,11 @@ public class vendingMachine {
 	 * @param coin
 	 */
 	public void insertCoin(String coin) {
-		assert ValueCoins.containsKey(coin) : "invalid coin";
 		if (ValueCoins.containsKey(coin)) {
 			CustomerCoins.put(coin, CustomerCoins.get(coin) + 1);
+		}
+		else {
+			System.out.println("invalid coin");
 		}
 	}
 	/**
@@ -74,19 +82,18 @@ public class vendingMachine {
 		}
 	}
 	/**
-	 * FIX FIX THIS AHAHHAHAHAHAH
 	 * take string name of coin
 	 * check if valid input
 	 * take all the coins of the specific coin type out of the vending machine
 	 * @param coin
 	 */
-	public void removeCoin(String coin) {
-		if (ValueCoins.containsKey(coin)) {
-			VendingMachineCoins.put(coin, 0);
+	public void removeCoins() {
+		for (String coin : CustomerCoins.keySet()) {
+			 CustomerCoins.put(coin, 0);
 		}
 	}
 	/**
-	 * balance += (number of coins * value of coin)  
+	 * for each type of coin: balance += (number of coin type * value of coin)
 	 * @return
 	 */
 	public double FindUserBalance() {
@@ -95,7 +102,6 @@ public class vendingMachine {
 			balance += (CustomerCoins.get(coinName) * ValueCoins.get(coinName));
 		}
 		return balance; 
-		
 	}
 	/**
 	 * The main transaction method where: 
@@ -111,15 +117,21 @@ public class vendingMachine {
 		Item chosenItem = SearchVendingMachine(itemName);
 		if (chosenItem != null && chosenItem.getPrice() <= FindUserBalance()) {
 			TransferCtoVM(); 
-			chosenItem.setNumberOfItem(chosenItem.getNumberOfItem() - 1);
+			DecrementItem(chosenItem);
 			return chosenItem; 
+		}
+		else if (chosenItem != null){
+			System.out.println("insufficient balance.");
+		}
+		else {
+			System.out.println("item not found.");
 		}
 		return null; 
 	}
 	/**
 	 * checks if there is an item with the input name and there is an amount > 0  
 	 * @param itemName
-	 * @return
+	 * @return item, else return null
 	 */
 	private Item SearchVendingMachine(String itemName) {
 		Item foundItem = findItemName(itemName); 
@@ -128,7 +140,6 @@ public class vendingMachine {
 		}
 		else return null; 
 	}
-	
 	/**
 	 * helper method to decrement item when the item is bought
 	 * @param item item to be bought
@@ -153,38 +164,99 @@ public class vendingMachine {
 	 * @param nameOfItem
 	 * @param numberOfItem
 	 */
-	public void addExistingProduct(String nameOfItem, int numberOfItem) {
+	public boolean addExistingProduct(String nameOfItem, int numberOfItem) {
 		Item foundItem = findItemName(nameOfItem);
+		boolean added = false;
 		if (foundItem != null) {
 			foundItem.setNumberOfItem(foundItem.getNumberOfItem() + numberOfItem);
+			added = true; 
 		}
-		
+		return added; 
 	}
+	/**
+	 * traverses through the vending machien and returns item if it is found, else returns null
+	 * @param nameOfItem
+	 * @return item if found, null otherwise
+	 */
 	private Item findItemName(String nameOfItem) {
 		Item found = null;
 		for (Item item : vendingMachineitems) {
-				if (item.getNameOfItem().toLowerCase() == nameOfItem.toLowerCase()) {
+			if (item.getNameOfItem().equalsIgnoreCase(nameOfItem)) {
 					found = item; 	
-				}
 			}
-		return found;  
+		}
+		return found;
 	}
 	/**
+	 * S)how Products I)nsert B)uy A)dd Product R)emove Coins Q)uit
 	 * runs Vending Machine as a customer.
 	 * Can buy, add money 
 	 */
 	public void customerAccess() {
-		int input = -1;
+		char input = 0;
+		while (input != 'Q' && input != 'B') { 
 		do {
-			System.out.println("0: add balance. \n1:select item ");
-			input = buttonPanel.nextInt();
-		} while (checkInput(input));
+			System.out.printf("Your current balance is: $%.2f\n", FindUserBalance());
+			System.out.println("S)how Products I)nsert B)uy A)dd Product R)emove Coins Q)uit");
+			input = buttonPanel.next().charAt(0);
+			//System.out.println("checkinput: " + checkInput(input)); //DEBUG
+		} while (!checkInput(input));
 		switch(input) {
-		case 0: //add balance
+		case 'S': //show products
+			displayItems(); 
 			break;
-		case 1: //select item 
+		case 'I': //insert coin
+			System.out.print("Enter type of coin: ");
+			insertCoin(buttonPanel.next());
+			break;
+		case 'B': //buy 
+			System.out.print("Enter product name: ");
+			Buy(buttonPanel.next());
+			break;
+		case 'A': //add product
+			AddNewOrExistingProduct(); 
+			break;
+		case 'R': //remove coins
+			removeCoins();
+			break;
+		case 'Q': //quit
+			System.out.println("Have a nice day.");
+			TransferCtoVM(); 
 			break;
 		default:
+			System.out.println("invalid input");
+			break;
+			}
+		}
+	}
+	/**
+	 * take in user input to determine to add existing or new product
+	 */
+	private void AddNewOrExistingProduct(){
+		System.out.println("E)xisting or N)ew product? or R)eturn to menu");
+		char input2 = buttonPanel.next().charAt(0);
+		String name; int size; 
+		switch (input2) {
+		case 'E':
+			System.out.println("Enter product name:");
+			name = buttonPanel.next();
+			System.out.println("Enter number of items:");
+			size = buttonPanel.nextInt();
+			addExistingProduct(name,size);
+			break;
+		case 'N':
+			System.out.println("Enter product name:");
+			name = buttonPanel.next();
+			System.out.println("Enter price of item:");
+			float price = buttonPanel.nextFloat();
+			System.out.println("Enter number of items:");
+			size = buttonPanel.nextInt();
+			addNewProduct(price,size,name);
+			break;
+		case 'R':
+			break;
+		default:
+			System.out.println("invalid input");
 			break;
 		}
 	}
@@ -193,18 +265,18 @@ public class vendingMachine {
 	 * @param input
 	 * @return boolean
 	 */
-	private boolean checkInput(int input) {
-		if (input == 0 || input == 1){
-			return true; 
+	private boolean checkInput(char input) {
+		char validInputs[] = new char [] {'S','I','B','A','R','Q'}; 
+		boolean valid = false;
+		for (char validChar : validInputs) {
+			if (input == validChar) {
+				valid = true;
+			} 
 		}
-		else return false; 
-	}
-	//everything the customer can do, but can add and remove items freely and add brand new items
-	public void adminAccess() {	
-	}
-	
+			return valid;  
+		}
 	/**
-	 * function to display items utilizing the toString Method
+	 * display function to display items utilizing the toString Method
 	 */
 	public void displayItems() {
 		for (Item item:vendingMachineitems) {
