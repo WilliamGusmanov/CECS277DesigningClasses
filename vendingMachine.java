@@ -109,24 +109,27 @@ public class vendingMachine {
 	 * Check if customer has enough money to buy item
 	 * transfer user balance to vending machine
 	 * decrease number of item in array list of items 
-	 * return sold item 
+	 * return whether transaction was successful.
 	 * @param itemName, name entered by user
-	 * @return, item that is found, else return null 
+	 * @return, true if item bought. false if insufficient balance or item not found.  
 	 */
-	public Item Buy(String itemName) {
+	public boolean Buy(String itemName) {
+		boolean success = false; 
 		Item chosenItem = SearchVendingMachine(itemName);
 		if (chosenItem != null && chosenItem.getPrice() <= FindUserBalance()) {
 			TransferCtoVM(); 
 			DecrementItem(chosenItem);
-			return chosenItem; 
+			success = true; 
 		}
 		else if (chosenItem != null){
 			System.out.println("insufficient balance.");
+			success = false;
 		}
 		else {
 			System.out.println("item not found.");
+			success = false; 
 		}
-		return null; 
+		return success; 
 	}
 	/**
 	 * checks if there is an item with the input name and there is an amount > 0  
@@ -194,7 +197,8 @@ public class vendingMachine {
 	 */
 	public void customerAccess() {
 		char input = 0;
-		while (input != 'Q' && input != 'B') { 
+		boolean endProgram = false; 
+		while (endProgram == false) { 
 		do {
 			System.out.printf("Your current balance is: $%.2f\n", FindUserBalance());
 			System.out.println("S)how Products I)nsert B)uy A)dd Product R)emove Coins Q)uit");
@@ -211,7 +215,7 @@ public class vendingMachine {
 			break;
 		case 'B': //buy 
 			System.out.print("Enter product name: ");
-			Buy(buttonPanel.next());
+			endProgram = Buy(buttonPanel.next()); //set to true if item is bought. 
 			break;
 		case 'A': //add product
 			AddNewOrExistingProduct(); 
@@ -221,6 +225,7 @@ public class vendingMachine {
 			break;
 		case 'Q': //quit
 			System.out.println("Have a nice day.");
+			endProgram = true; 
 			TransferCtoVM(); 
 			break;
 		default:
