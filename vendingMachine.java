@@ -63,6 +63,7 @@ public class vendingMachine {
 	 * @param coin
 	 */
 	public void insertCoin(String coin) {
+		coin = coin.toLowerCase();
 		if (ValueCoins.containsKey(coin)) {
 			CustomerCoins.put(coin, CustomerCoins.get(coin) + 1);
 		}
@@ -89,13 +90,13 @@ public class vendingMachine {
 	 */
 
 	public void removeCoins(String coin) {
+		coin = coin.toLowerCase();
 		if (ValueCoins.containsKey(coin)) {
 			VendingMachineCoins.put(coin, 0);
 		} else {
 			System.out.println("invalid coin");
 		}
 	}
-
 	/**
 	 * for each type of coin: balance += (number of coin type * value of coin)
 	 * @return
@@ -104,6 +105,17 @@ public class vendingMachine {
 		double balance = 0.0; 
 		for (String coinName : CustomerCoins.keySet()) {
 			balance += (CustomerCoins.get(coinName) * ValueCoins.get(coinName));
+		}
+		return balance; 
+	}
+	
+	/**
+	 * 
+	 */
+	public double FindVMBalance() {
+		double balance = 0.0; 
+		for (String coinName : VendingMachineCoins.keySet()) {
+			balance += (VendingMachineCoins.get(coinName) * ValueCoins.get(coinName));
 		}
 		return balance; 
 	}
@@ -117,23 +129,20 @@ public class vendingMachine {
 	 * @param itemName, name entered by user
 	 * @return, true if item bought. false if insufficient balance or item not found.  
 	 */
-	public boolean Buy(String itemName) {
-		boolean success = false; 
+	public Item Buy(String itemName) {
+		itemName = itemName.toLowerCase();
 		Item chosenItem = SearchVendingMachine(itemName);
 		if (chosenItem != null && chosenItem.getPrice() <= FindUserBalance()) {
 			TransferCtoVM(); 
 			DecrementItem(chosenItem);
-			success = true; 
 		}
 		else if (chosenItem != null){
 			System.out.println("insufficient balance.");
-			success = false;
 		}
 		else {
 			System.out.println("item not found.");
-			success = false; 
 		}
-		return success; 
+		return chosenItem; 
 	}
 	/**
 	 * checks if there is an item with the input name and there is an amount > 0  
@@ -141,6 +150,7 @@ public class vendingMachine {
 	 * @return item, else return null
 	 */
 	private Item SearchVendingMachine(String itemName) {
+		itemName = itemName.toLowerCase();
 		Item foundItem = findItemName(itemName); 
 		if (foundItem != null && foundItem.getNumberOfItem() > 0) {
 			return foundItem; 
@@ -172,6 +182,7 @@ public class vendingMachine {
 	 * @param numberOfItem
 	 */
 	public boolean addExistingProduct(String nameOfItem, int numberOfItem) {
+		nameOfItem = nameOfItem.toLowerCase();
 		Item foundItem = findItemName(nameOfItem);
 		boolean added = false;
 		if (foundItem != null) {
@@ -186,6 +197,7 @@ public class vendingMachine {
 	 * @return item if found, null otherwise
 	 */
 	private Item findItemName(String nameOfItem) {
+		nameOfItem = nameOfItem.toLowerCase();
 		Item found = null;
 		for (Item item : vendingMachineitems) {
 			if (item.getNameOfItem().equalsIgnoreCase(nameOfItem)) {
@@ -194,6 +206,8 @@ public class vendingMachine {
 		}
 		return found;
 	}
+	
+	
 	/**
 	 * S)how Products I)nsert B)uy A)dd Product R)emove Coins Q)uit
 	 * runs Vending Machine as a customer.
@@ -205,7 +219,7 @@ public class vendingMachine {
 		while (endProgram == false) { 
 		do {
 			System.out.printf("Your current balance is: $%.2f\n", FindUserBalance());
-			System.out.println("S)how Products I)nsert B)uy A)dd Product R)emove Coins Q)uit");
+			System.out.println("S)how Products I)nsert B)uy A)dd Product R)emove Coins V)ending Machine Balance Q)uit");
 			String inputString = buttonPanel.next();
 			inputString = inputString.toUpperCase();
 			input = inputString.charAt(0);
@@ -220,18 +234,22 @@ public class vendingMachine {
 			break;
 		case 'B': //buy 
 			System.out.print("Enter product name: ");
-			endProgram = Buy(buttonPanel.next()); //set to true if item is bought. 
+			Buy(buttonPanel.next()); //set to true if item is bought. 
 			break;
 		case 'A': //add product
 			AddNewOrExistingProduct(); 
 			break;
 		case 'R': //remove coins
-			removeCoins();
+			removeCoins(buttonPanel.next());
 			break;
 		case 'Q': //quit
 			System.out.println("Have a nice day.");
 			endProgram = true; 
 			TransferCtoVM(); 
+			break;
+		case 'V':
+			System.out.println("Vending Machine Balance:");
+			System.out.printf("The vending machine balance is: $%.2f\n",FindVMBalance());
 			break;
 		default:
 			System.out.println("invalid input");
@@ -270,13 +288,14 @@ public class vendingMachine {
 			break;
 		}
 	}
+	
 	/**
 	 * used to check if input is one of the options for Customer access Vending Machine
 	 * @param input
 	 * @return boolean
 	 */
 	private boolean checkInput(char input) {
-		char validInputs[] = new char [] {'S','I','B','A','R','Q'}; 
+		char validInputs[] = new char [] {'S','I','B','A','R','Q','V'}; 
 		boolean valid = false;
 		for (char validChar : validInputs) {
 			if (input == validChar) {
@@ -293,4 +312,5 @@ public class vendingMachine {
 			System.out.println(item);
 		}
 	}
+	
 }
