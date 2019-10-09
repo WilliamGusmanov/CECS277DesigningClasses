@@ -202,8 +202,9 @@ public class vendingMachine {
 		do {
 			System.out.printf("Your current balance is: $%.2f\n", FindUserBalance());
 			System.out.println("S)how Products I)nsert B)uy A)dd Product R)emove Coins Q)uit");
-			input = buttonPanel.next().charAt(0);
-			//System.out.println("checkinput: " + checkInput(input)); //DEBUG
+			String inputString = buttonPanel.next();
+			inputString = inputString.toUpperCase();
+			input = inputString.charAt(0);
 		} while (!checkInput(input));
 		switch(input) {
 		case 'S': //show products
